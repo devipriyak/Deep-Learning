@@ -1,0 +1,32 @@
+import torchio as tio
+
+# Define the paths to your medical images
+image_paths = ['path/to/image1.nii', 'path/to/image2.nii']
+
+# Create a list of Subject objects
+subjects = [tio.Subject(image=tio.ScalarImage(path)) for path in image_paths]
+
+# Create a SubjectsDataset
+dataset = tio.SubjectsDataset(subjects)
+
+# Define preprocessing and augmentation transforms
+transforms = tio.Compose([
+    tio.RescaleIntensity(out_min_max=(0, 1)),  # Rescale intensity values to [0, 1]
+    tio.RandomAffine(),  # Apply random affine transformations
+    tio.RandomElasticDeformation(),  # Apply random elastic deformations
+    tio.RandomNoise(),  # Add random noise
+])
+
+# Create a DataLoader
+dataloader = torch.utils.data.DataLoader(
+    dataset,
+    batch_size=4,
+    shuffle=True,
+    num_workers=4,
+    collate_fn=tio.utils.collate
+)
+
+# Iterate over the DataLoader
+for batch in dataloader:
+    images = batch['image'][tio.DATA]  # Access the images tensor
+    # Your training code here
