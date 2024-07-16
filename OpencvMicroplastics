@@ -1,0 +1,29 @@
+import matplotlib.pyplot as plt
+
+# After evaluating the model and getting outputs
+model.eval()
+with torch.no_grad():
+    for images, _ in valid_loader:
+        images = [img.to(device) for img in images]
+        outputs = model(images)
+
+        # Visualize the first image and its bounding boxes
+        for i in range(len(images)):
+            plt.figure(figsize=(8, 8))
+            image = images[i].cpu().numpy().transpose(1, 2, 0)  # Change to HWC format
+            plt.imshow(image)
+
+            # Get bounding boxes and scores
+            boxes = outputs[i]['boxes'].cpu().numpy()
+            scores = outputs[i]['scores'].cpu().numpy()
+
+            # Filter boxes by a score threshold (e.g., 0.5)
+            for box, score in zip(boxes, scores):
+                if score > 0.5:  # You can adjust this threshold
+                    xmin, ymin, xmax, ymax = box
+                    plt.gca().add_patch(plt.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin, 
+                                                        edgecolor='red', facecolor='none', linewidth=2))
+            plt.axis('off')
+            plt.show()
+
+        break  # Remove this to visualize all images
